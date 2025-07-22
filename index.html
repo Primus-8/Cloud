@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Cloudinary Upload Tester</title>
+  <style>
+    body { font-family:sans-serif; max-width:400px; margin:2em auto;}
+    .err {color:#d00;}
+    .ok {color:green;}
+    img {max-width: 100%;}
+  </style>
+</head>
+<body>
+  <h2>Cloudinary Upload Tester</h2>
+  <form id="uploadForm">
+    <input type="file" name="file" id="fileInput" required />
+    <button type="submit">Upload</button>
+  </form>
+  <div id="result"></div>
+  <script>
+    const API_URL = "https://cloudinary-d39m.vercel.app/api/upload"; // <- BILKUL YAHI RAHNE DO
+    const form = document.getElementById("uploadForm");
+    const input = document.getElementById("fileInput");
+    const result = document.getElementById("result");
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      result.innerHTML = "Uploading...";
+      if(!input.files[0]) {
+        result.innerHTML = "<span class=err>No file selected!</span>";
+        return;
+      }
+      const fd = new FormData();
+      fd.append("file", input.files[0]);
+      form.querySelector("button").disabled = true;
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: fd });
+        const data = await res.json();
+        if(!res.ok) {
+          result.innerHTML = `<span class=err>ERROR: ${data.details || data.error}</span><pre>${JSON.stringify(data,null,2)}</pre>`;
+        } else if(data.url) {
+          result.innerHTML = `<span class=ok>SUCCESS:<br>
+            <a href="${data.url}" target="_blank">${data.url}</a></span>
+            <img src="${data.url}"/><br>
+            <pre>${JSON.stringify(data,null,2)}</pre>`;
+        } else {
+          result.innerHTML = `<span class=err>No URL!<br>${JSON.stringify(data,null,2)}</span>`;
+        }
+      } catch(err) {
+        result.innerHTML = "<span class=err>Network or CORS error: "+err+"</span>";
+      } finally {
+        form.querySelector("button").disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
