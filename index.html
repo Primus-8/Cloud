@@ -1,6 +1,10 @@
+
+
+
 <!DOCTYPE html>
 <html>
 <body>
+  <h2>Cloudinary Upload Tester</h2>
   <form id="uploadForm">
     <input type="file" name="file" id="fileInput" required />
     <button type="submit">Upload</button>
@@ -10,14 +14,19 @@
     const API_URL = "https://cloudinary-d39m.vercel.app/api/upload";
     const form = document.getElementById("uploadForm");
     form.addEventListener("submit", async function(e) {
-      e.preventDefault();
+      e.preventDefault(); // Page reload nahi hoga!
       const input = document.getElementById("fileInput");
       const fd = new FormData();
       fd.append("file", input.files[0]);
-      const res = await fetch(API_URL, { method: "POST", body: fd });
-      const data = await res.json();
-      document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: fd });
+        const data = await res.json();
+        document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById("result").innerText = "Network or CORS error: " + err;
+      }
     });
   </script>
 </body>
 </html>
+
